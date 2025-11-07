@@ -5,6 +5,24 @@ echo HAMLOG HTTP API Server Setup
 echo ========================================
 echo.
 
+REM HAMLOG確認
+if not exist "C:\HAMLOG\hamlogw.exe" (
+    echo [ERROR] HAMLOG not found at C:\HAMLOG\hamlogw.exe
+    echo Please install HAMLOG from https://hamlog.sakura.ne.jp/
+    pause
+    exit /b 1
+)
+
+REM HAMLOG二重起動チェック
+tasklist /FI "IMAGENAME eq hamlogw.exe" 2>NUL | find /I /N "hamlogw.exe">NUL
+if "%ERRORLEVEL%"=="0" (
+    echo [INFO] HAMLOG is already running
+) else (
+    echo [INFO] Starting HAMLOG...
+    start C:\HAMLOG\hamlogw.exe
+    timeout /t 2 /nobreak >nul
+)
+
 REM Python確認
 python --version >nul 2>&1
 if errorlevel 1 (
@@ -29,6 +47,20 @@ if errorlevel 1 (
 )
 
 echo [OK] Flask installed
+
+REM Flask-CORS確認・インストール
+python -c "import flask_cors" >nul 2>&1
+if errorlevel 1 (
+    echo [INFO] Installing Flask-CORS...
+    pip install flask-cors
+    if errorlevel 1 (
+        echo [ERROR] Failed to install Flask-CORS
+        pause
+        exit /b 1
+    )
+)
+
+echo [OK] Flask-CORS installed
 
 REM AutoHotkey確認
 if not exist "C:\Program Files\AutoHotkey\AutoHotkey.exe" (
@@ -58,18 +90,8 @@ echo ========================================
 echo Ready to Start Server
 echo ========================================
 echo.
-set /p START="Start server now? (y/n): "
-
-if /i "%START%"=="y" (
-    echo.
-    echo Starting server at http://127.0.0.1:86109
-    echo Press Ctrl+C to stop
-    echo.
-    python hamlog_api_server.py
-) else (
-    echo.
-    echo To start manually:
-    echo   python hamlog_api_server.py
-    echo.
-    pause
-)
+echo.
+echo Starting server at http://localhost:8669
+echo Press Ctrl+C to stop
+echo.
+python hamlog_api_server.py
