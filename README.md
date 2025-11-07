@@ -289,12 +289,13 @@ copies of the Software...
 
 ---
 
-## 🌟 スター履歴
+## ⚠️ 注意事項
 
-[![Stargazers over time](https://starchart.cc/kikyujin/hamlog-api.svg)](https://starchart.cc/kikyujin/hamlog-api)
+このプロジェクトはTurbo HAMLOGの**非公式ツール**です。
+UIオートメーションを使用しているため、HAMLOGのバージョンアップで
+動作しなくなる可能性があります。
 
----
-
+自己責任でご利用ください。
 **73! de JS2OIA**
 
 *Boneless HAM の精神を受け継ぎ、Turbo HAMLOG をもっと自由に。*
