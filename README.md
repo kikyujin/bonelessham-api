@@ -1,4 +1,4 @@
-# 🌐 HAMLOG HTTP API
+# 🌐 bonelessham-api
 
 **Turbo HAMLOG を HTTP API 化するプロジェクト**
 
@@ -10,14 +10,15 @@
 
 ## 📖 概要
 
-**HAMLOG HTTP API**は、[Boneless HAM](https://github.com/kikyujin/bonelessham)の後継プロジェクトです。Turbo HAMLOGのバイナリデータベースに直接アクセスせず、UIオートメーション経由でデータを取得・設定できるHTTP APIサーバーを提供します。
+**bonelessham-api**は、[Boneless HAM](https://github.com/kikyujin/bonelessham)の後継プロジェクトです。Turbo HAMLOGのバイナリデータベースに直接アクセスせず、UIオートメーション経由でデータを取得・設定できるHTTP APIサーバーを提供します。
 
 ### できること
 
 - ✅ コールサインでログデータを検索
 - ✅ ブラウザ・スクリプトからログ作成
 - ✅ REST API経由でHAMLOG操作
-- ✅ 外部アプリケーションとの連携
+- ✅ LAN内の他PCからアクセス可能
+- ✅ Tailscale経由で外部アクセス対応
 
 ---
 
@@ -39,20 +40,51 @@
 
 ## ⚡ クイックスタート
 
+### 前提条件
+
+- ✅ Turbo HAMLOG インストール済み
+- ✅ AutoHotkey v1.1 インストール済み
+- ✅ Python 3.8+ インストール済み
+
 ### 3ステップで起動
 
 ```bash
-# 1. Flaskインストール
-pip install flask
+# 1. リポジトリクローン
+git clone https://github.com/kikyujin/bonelessham-api.git
+cd bonelessham-api
 
-# 2. サーバー起動
-python hamlog_api_server.py
+# 2. 依存パッケージインストール
+pip install -r requirements.txt
 
-# 3. テスト
-curl http://localhost:8669/api/status
+# 3. サーバー起動
+.\setup.bat
 ```
 
-詳細: [QUICKSTART.md](QUICKSTART.md)
+起動すると `http://(running-IP):8669` でAPIが利用可能になります。
+
+---
+
+## 🧪 動作確認
+
+### curlでテスト
+
+```bash
+# ステータス確認
+curl http://localhost:8669/api/status
+
+# コールサイン検索
+curl http://localhost:8669/api/callsign/JA1ABC
+
+# ログ作成
+curl -X POST http://localhost:8669/api/log \
+  -H "Content-Type: application/json" \
+  -d "{\"callsign\":\"JS2OIA\",\"his\":\"59\",\"my\":\"59\",\"freq\":\"145\",\"mode\":\"FM\"}"
+```
+
+### Web UIで試す
+
+ブラウザで `hamlog_api_ui.html` を開く
+※ hamlog_api_ui.html 208行目の "API_BASE" を環境に合わせて変更してください。
 
 ---
 
@@ -60,31 +92,59 @@ curl http://localhost:8669/api/status
 
 ### エンドポイント一覧
 
-```http
-GET  /api/status                 # HAMLOG起動確認
-GET  /api/callsign/{callsign}    # データ取得
-POST /api/log                    # ログ作成
-PUT  /api/log                    # ログ更新
-POST /api/clear                  # クリア
+| Method | Endpoint | 説明 |
+|--------|----------|------|
+| GET | `/api/status` | HAMLOG起動確認 |
+| GET | `/api/callsign/{callsign}` | データ取得 |
+| POST | `/api/log` | ログ作成 |
+| PUT | `/api/log` | ログ更新 |
+| POST | `/api/clear` | クリア |
+
+### レスポンス例
+
+```json
+{
+  "callsign": "JS2OIA",
+  "name": "気球人",
+  "qth": "愛知県弥富市",
+  "freq": 430,
+  "mode": "FM",
+  "his": 59,
+  "my": 59,
+  "date": "25/11/07",
+  "time": "18:58J"
+}
 ```
 
-### 使用例
+---
 
-```python
-import requests
+## 🌐 LAN内公開
 
-# コールサイン検索
-response = requests.get('http://localhost:8669/api/callsign/JA1ABC')
-print(response.json())
+デフォルトで `host='0.0.0.0'` に設定されているため、LAN内の他PCからアクセス可能です。
 
-# ログ作成
-requests.post('http://localhost:8669/api/log', json={
-    'callsign': 'JH1XYZ',
-    'his': '59',
-    'my': '59',
-    'freq': '430',
-    'mode': 'FM'
-})
+```bash
+# 他のPCから
+curl http://192.168.1.100:8669/api/status
+```
+
+### Windowsファイアウォール設定（必要なら）
+
+```powershell
+# PowerShellを管理者権限で実行
+New-NetFirewallRule -DisplayName "HAMLOG API" -Direction Inbound -LocalPort 8669 -Protocol TCP -Action Allow
+```
+
+---
+
+## 🔐 外部アクセス（Tailscale推奨）
+
+外出先からアクセスする場合は、Tailscale経由を推奨します。
+
+1. サーバーPC・クライアントPCにTailscaleをインストール
+2. Tailscale IPアドレスでアクセス
+
+```bash
+curl http://100.x.x.x:8669/api/status
 ```
 
 ---
@@ -92,19 +152,12 @@ requests.post('http://localhost:8669/api/log', json={
 ## 📁 ファイル構成
 
 ```
-hamlog-api/
+bonelessham-api/
 ├── hamlog_api_server.py      # Flask HTTPサーバー
 ├── hamlog_api.ahk            # AHK自動化スクリプト
-├── hamlog_api_test.py        # テストクライアント
 ├── hamlog_api_ui.html        # Web UI
-├── setup.bat                 # Windowsセットアップ
 ├── requirements.txt          # Python依存パッケージ
-│
-└── 📚 ドキュメント
-    ├── README.md             # このファイル
-    ├── QUICKSTART.md         # クイックスタート
-    ├── HAMLOG_API_README.md  # 詳細API仕様
-    └── ARCHITECTURE.md       # アーキテクチャ図
+└── README.md                 # このファイル
 ```
 
 ---
@@ -118,78 +171,51 @@ hamlog-api/
 - **AutoHotkey**: v1.1
 - **Python**: 3.8+
 
-### オプション
-
-- **Flask**: Web APIフレームワーク
-- **curl**: APIテスト用
-
 ---
 
-## 🚀 インストール
+## 💡 使用例
 
-### 自動セットアップ(推奨)
+### Pythonスクリプトから
 
-```batch
-# setup.bat を実行
-setup.bat
-```
-
-### 手動セットアップ
-
-```bash
-# 1. リポジトリクローン
-git clone https://github.com/kikyujin/hamlog-api.git
-cd hamlog-api
-
-# 2. 依存パッケージインストール
-pip install -r requirements.txt
-
-# 3. パス設定
-# hamlog_api_server.py の以下を編集:
-#   AHK_SCRIPT = r"C:\path\to\hamlog_api.ahk"
-#   AUTOHOTKEY = r"C:\Program Files\AutoHotkey\AutoHotkey.exe"
-
-# 4. サーバー起動
-python hamlog_api_server.py
-```
-
----
-
-## 🧪 テスト
-
-### 方法1: curl
-
-```bash
-# ステータス確認
-curl http://localhost:8669/api/status
+```python
+import requests
 
 # コールサイン検索
-curl http://localhost:8669/api/callsign/JA1ABC
+response = requests.get('http://localhost:8669/api/callsign/JA1ABC')
+data = response.json()
+print(f"Name: {data['name']}, QTH: {data['qth']}")
+
+# ログ作成
+log = {
+    'callsign': 'JS2OIA',
+    'his': '59',
+    'my': '59',
+    'freq': '430',
+    'mode': 'FM'
+}
+requests.post('http://localhost:8669/api/log', json=log)
 ```
 
-### 方法2: Pythonテストスクリプト
+### JavaScriptから
 
-```bash
-# 全テスト実行
-python hamlog_api_test.py all
+```javascript
+// データ取得
+const response = await fetch('http://localhost:8669/api/callsign/JA1ABC');
+const data = await response.json();
 
-# 対話モード
-python hamlog_api_test.py interactive
+// ログ作成
+await fetch('http://localhost:8669/api/log', {
+  method: 'POST',
+  headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    callsign: 'JH1XYZ',
+    his: '59',
+    my: '59',
+    freq: '144',
+    mode: 'SSB'
+  })
+});
 ```
-
-### 方法3: Web UI
-
-`hamlog_api_ui.html` をブラウザで開く
-
----
-
-## 📚 ドキュメント
-
-| ファイル | 内容 |
-|---------|------|
-| [QUICKSTART.md](QUICKSTART.md) | クイックスタートガイド |
-| [HAMLOG_API_README.md](HAMLOG_API_README.md) | 詳細API仕様 |
-| [ARCHITECTURE.md](ARCHITECTURE.md) | システムアーキテクチャ |
 
 ---
 
@@ -203,7 +229,9 @@ RSTの先頭が5以外(例: 41)の場合、HAMLOG側が自動的に「5」に書
 
 ### 保存機能
 
-現在、APIからの自動保存には対応していません。LOGダイアログでの手動保存が必要です。
+現在、APIからの自動保存には対応していません。LOGダイアログでの手動保存が必要です（うまくHAMLOGを制御できないため）。  
+  
+※ 個人的意見：ここまで情報取れるなら、HAMLOGに記録させるより自分で記録したほうが早いと考えています。
 
 ---
 
@@ -214,17 +242,19 @@ RSTの先頭が5以外(例: 41)の場合、HAMLOG側が自動的に「5」に書
 - [x] コールサイン検索
 - [x] ログ作成/更新/クリア
 - [x] Web UI
+- [x] LAN内公開
 
-### v1.1 (計画中)
+### v2.0 (計画中)
+- [ ] ローカルDB（SQLite）導入
+- [ ] 局データキャッシュ
+- [ ] バッチ同期機能
 - [ ] 自動保存API
 - [ ] ログ検索API
-- [ ] バッチ操作
-- [ ] エラーハンドリング強化
 
-### v2.0 (将来)
-- [ ] WebSocket対応
-- [ ] Electron製GUIクライアント
-- [ ] クラウド同期
+### v3.0 (将来)
+- [ ] 専用GUI作成
+- [ ] 音声認識対応
+- [ ] クラウド対応
 - [ ] モバイルアプリ
 
 ---
@@ -252,9 +282,7 @@ Copyright (c) 2025 Kikyujin / MULTiTApps Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software...
+in the Software without restriction...
 ```
 
 ---
@@ -296,6 +324,7 @@ UIオートメーションを使用しているため、HAMLOGのバージョン
 動作しなくなる可能性があります。
 
 自己責任でご利用ください。
+
 **73! de JS2OIA**
 
 *Boneless HAM の精神を受け継ぎ、Turbo HAMLOG をもっと自由に。*
