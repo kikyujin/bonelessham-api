@@ -3,14 +3,16 @@ HAMLOG HTTP API Server
 boneless.ahkの機能をHTTP API化
 """
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import subprocess
 import json
 import os
 
 app = Flask(__name__)
+CORS(app)  # ← 追加
 
 # AHKスクリプトのパス(環境に応じて変更)
-AHK_SCRIPT = r"C:\path\to\hamlog_api.ahk"
+AHK_SCRIPT = r"C:\Users\mahito\work\bonelessham-api\hamlog_api.ahk"
 AUTOHOTKEY = r"C:\Program Files\AutoHotkey\AutoHotkey.exe"
 
 
@@ -23,7 +25,7 @@ def execute_ahk(function_name, *args):
             capture_output=True,
             text=True,
             timeout=10,
-            encoding='utf-8'
+            encoding='cp932'  # Windowsのデフォルトエンコードに合わせる
         )
         if result.returncode == 0:
             return json.loads(result.stdout)
@@ -91,5 +93,5 @@ def internal_error(error):
 
 
 if __name__ == '__main__':
-    # ポート86109で起動
-    app.run(host='127.0.0.1', port=86109, debug=True)
+    # ポート8669で起動
+    app.run(host='0.0.0.0', port=8669, debug=True)

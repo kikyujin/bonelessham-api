@@ -55,10 +55,10 @@ python hamlog_api_server.py
 
 ```bash
 # ステータス確認
-curl http://localhost:86109/api/status
+curl http://localhost:8669/api/status
 
 # コールサイン検索
-curl http://localhost:86109/api/callsign/JA1ABC
+curl http://localhost:8669/api/callsign/JA1ABC
 ```
 
 #### ブラウザから
@@ -84,7 +84,7 @@ python hamlog_api_test.py interactive
 ```python
 import requests
 
-response = requests.get('http://localhost:86109/api/callsign/JA1ABC')
+response = requests.get('http://localhost:8669/api/callsign/JA1ABC')
 data = response.json()
 
 print(f"Name: {data['name']}")
@@ -106,7 +106,7 @@ log = {
     'qth': '埼玉県'
 }
 
-response = requests.post('http://localhost:86109/api/log', json=log)
+response = requests.post('http://localhost:8669/api/log', json=log)
 print(response.json())
 ```
 
@@ -114,12 +114,12 @@ print(response.json())
 
 ```javascript
 // データ取得
-const response = await fetch('http://localhost:86109/api/callsign/JA1ABC');
+const response = await fetch('http://localhost:8669/api/callsign/JA1ABC');
 const data = await response.json();
 console.log(data);
 
 // ログ作成
-await fetch('http://localhost:86109/api/log', {
+await fetch('http://localhost:8669/api/log', {
   method: 'POST',
   headers: {'Content-Type': 'application/json'},
   body: JSON.stringify({
@@ -154,8 +154,8 @@ await fetch('http://localhost:86109/api/log', {
 # Flaskがインストールされているか確認
 pip list | grep -i flask
 
-# ポート86109が使用中か確認
-netstat -an | findstr 86109
+# ポート8669が使用中か確認
+netstat -an | findstr 8669
 
 # 別のポートで起動
 # hamlog_api_server.py の最終行を編集:
@@ -195,7 +195,7 @@ while True:
     data = parse_rig_data(ser.readline())
     
     # HAMLOGに自動記録
-    requests.post('http://localhost:86109/api/log', json={
+    requests.post('http://localhost:8669/api/log', json={
         'callsign': data['callsign'],
         'freq': data['freq'],
         'mode': data['mode'],
@@ -211,7 +211,7 @@ while True:
 callsigns = ['JA1AAA', 'JA1BBB', 'JA1CCC']
 
 for cs in callsigns:
-    requests.post('http://localhost:86109/api/log', json={
+    requests.post('http://localhost:8669/api/log', json={
         'callsign': cs,
         'his': '59',
         'my': '59',
@@ -220,7 +220,7 @@ for cs in callsigns:
     })
     # HAMLOG側で保存操作
     input(f"{cs} saved? Press Enter...")
-    requests.post('http://localhost:86109/api/clear')
+    requests.post('http://localhost:8669/api/clear')
 ```
 
 ### QSLカード印刷自動化
@@ -230,7 +230,7 @@ for cs in callsigns:
 ```python
 # 複数コールサインからデータ取得
 for cs in target_callsigns:
-    data = requests.get(f'http://localhost:86109/api/callsign/{cs}').json()
+    data = requests.get(f'http://localhost:8669/api/callsign/{cs}').json()
     generate_qsl_card(data)
     print_qsl_card()
 ```

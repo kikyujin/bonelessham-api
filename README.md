@@ -49,7 +49,7 @@ pip install flask
 python hamlog_api_server.py
 
 # 3. テスト
-curl http://localhost:86109/api/status
+curl http://localhost:8669/api/status
 ```
 
 詳細: [QUICKSTART.md](QUICKSTART.md)
@@ -74,11 +74,11 @@ POST /api/clear                  # クリア
 import requests
 
 # コールサイン検索
-response = requests.get('http://localhost:86109/api/callsign/JA1ABC')
+response = requests.get('http://localhost:8669/api/callsign/JA1ABC')
 print(response.json())
 
 # ログ作成
-requests.post('http://localhost:86109/api/log', json={
+requests.post('http://localhost:8669/api/log', json={
     'callsign': 'JH1XYZ',
     'his': '59',
     'my': '59',
@@ -161,10 +161,10 @@ python hamlog_api_server.py
 
 ```bash
 # ステータス確認
-curl http://localhost:86109/api/status
+curl http://localhost:8669/api/status
 
 # コールサイン検索
-curl http://localhost:86109/api/callsign/JA1ABC
+curl http://localhost:8669/api/callsign/JA1ABC
 ```
 
 ### 方法2: Pythonテストスクリプト

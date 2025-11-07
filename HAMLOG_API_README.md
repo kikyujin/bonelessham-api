@@ -14,7 +14,7 @@ Turbo HAMLOGのバイナリデータベースに直接アクセスせず、UIオ
 ┌─────────────┐
 │   Client    │ curl/Postman/ブラウザ/スクリプト
 └──────┬──────┘
-       │ HTTP (localhost:86109)
+       │ HTTP (localhost:8669)
        ↓
 ┌─────────────┐
 │Flask Server │ Python
@@ -71,7 +71,7 @@ Turbo HAMLOGを起動し、LOGダイアログを開いておく(初回のみ)
 python hamlog_api_server.py
 ```
 
-起動すると `http://127.0.0.1:86109` でAPIが利用可能になります。
+起動すると `http://127.0.0.1:8669` でAPIが利用可能になります。
 
 ---
 
@@ -101,7 +101,7 @@ GET /api/callsign/{callsign}
 
 **例:**
 ```bash
-curl http://localhost:86109/api/callsign/JA1ABC
+curl http://localhost:8669/api/callsign/JA1ABC
 ```
 
 **レスポンス例:**
@@ -187,13 +187,13 @@ HAMLOGのLOGダイアログを`Alt+A`でクリアします。
 
 ```bash
 # ステータス確認
-curl http://localhost:86109/api/status
+curl http://localhost:8669/api/status
 
 # コールサイン検索
-curl http://localhost:86109/api/callsign/JH1ABC
+curl http://localhost:8669/api/callsign/JH1ABC
 
 # ログセット
-curl -X POST http://localhost:86109/api/log \
+curl -X POST http://localhost:8669/api/log \
   -H "Content-Type: application/json" \
   -d '{
     "callsign": "JA1XYZ",
@@ -210,7 +210,7 @@ curl -X POST http://localhost:86109/api/log \
 import requests
 
 # データ取得
-response = requests.get('http://localhost:86109/api/callsign/JA1ABC')
+response = requests.get('http://localhost:8669/api/callsign/JA1ABC')
 data = response.json()
 print(data['name'])  # 山田太郎
 
@@ -222,7 +222,7 @@ log_data = {
     'freq': '50',
     'mode': 'CW'
 }
-response = requests.post('http://localhost:86109/api/log', json=log_data)
+response = requests.post('http://localhost:8669/api/log', json=log_data)
 print(response.json())
 ```
 
@@ -230,12 +230,12 @@ print(response.json())
 
 ```javascript
 // データ取得
-fetch('http://localhost:86109/api/callsign/JA1ABC')
+fetch('http://localhost:8669/api/callsign/JA1ABC')
   .then(res => res.json())
   .then(data => console.log(data));
 
 // ログ作成
-fetch('http://localhost:86109/api/log', {
+fetch('http://localhost:8669/api/log', {
   method: 'POST',
   headers: {'Content-Type': 'application/json'},
   body: JSON.stringify({

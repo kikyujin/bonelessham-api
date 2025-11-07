@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,26 +11,26 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Segoe UI', Meiryo, sans-serif;
             background: #1a1a2e;
             color: #eee;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 900px;
             margin: 0 auto;
         }
-        
+
         h1 {
             text-align: center;
             margin-bottom: 30px;
             color: #00d4ff;
             text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
-        
+
         .section {
             background: #16213e;
             border: 1px solid #0f3460;
@@ -37,23 +38,23 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        
+
         h2 {
             color: #00d4ff;
             margin-bottom: 15px;
             font-size: 1.2em;
         }
-        
+
         .form-group {
             margin-bottom: 15px;
         }
-        
+
         label {
             display: block;
             margin-bottom: 5px;
             color: #aaa;
         }
-        
+
         input[type="text"] {
             width: 100%;
             padding: 10px;
@@ -63,7 +64,7 @@
             color: #eee;
             font-size: 14px;
         }
-        
+
         button {
             background: #00d4ff;
             color: #1a1a2e;
@@ -75,25 +76,25 @@
             font-size: 14px;
             transition: all 0.3s;
         }
-        
+
         button:hover {
             background: #00a8cc;
             box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
-        
+
         button:active {
             transform: scale(0.98);
         }
-        
+
         .btn-danger {
             background: #e74c3c;
             color: white;
         }
-        
+
         .btn-danger:hover {
             background: #c0392b;
         }
-        
+
         pre {
             background: #0f3460;
             border: 1px solid #00d4ff;
@@ -103,7 +104,7 @@
             font-size: 12px;
             color: #00d4ff;
         }
-        
+
         .status {
             display: inline-block;
             padding: 5px 10px;
@@ -111,23 +112,23 @@
             font-size: 12px;
             font-weight: bold;
         }
-        
+
         .status.running {
             background: #27ae60;
             color: white;
         }
-        
+
         .status.stopped {
             background: #e74c3c;
             color: white;
         }
-        
+
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
         }
-        
+
         @media (max-width: 600px) {
             .grid {
                 grid-template-columns: 1fr;
@@ -135,17 +136,18 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🌐 HAMLOG API Test UI</h1>
-        
+
         <!-- ステータス -->
         <div class="section">
             <h2>📡 Status</h2>
             <button onclick="checkStatus()">Check Status</button>
             <div id="statusResult" style="margin-top: 10px;"></div>
         </div>
-        
+
         <!-- コールサイン取得 -->
         <div class="section">
             <h2>🔍 Get Callsign Data</h2>
@@ -156,7 +158,7 @@
             <button onclick="getCallsignData()">Get Data</button>
             <pre id="getResult" style="margin-top: 15px; display: none;"></pre>
         </div>
-        
+
         <!-- ログ作成 -->
         <div class="section">
             <h2>📝 Create Log</h2>
@@ -193,7 +195,7 @@
             <button onclick="createLog()">Set to HAMLOG</button>
             <pre id="createResult" style="margin-top: 15px; display: none;"></pre>
         </div>
-        
+
         <!-- クリア -->
         <div class="section">
             <h2>🗑️ Clear Log Dialog</h2>
@@ -201,15 +203,15 @@
             <pre id="clearResult" style="margin-top: 15px; display: none;"></pre>
         </div>
     </div>
-    
+
     <script>
-        const API_BASE = 'http://127.0.0.1:86109';
-        
+        const API_BASE = 'http://127.0.0.1:8669';
+
         async function checkStatus() {
             try {
                 const response = await fetch(`${API_BASE}/api/status`);
                 const data = await response.json();
-                
+
                 const result = document.getElementById('statusResult');
                 if (data.status === 'running') {
                     result.innerHTML = `<span class="status running">RUNNING</span> (HWND: ${data.hwnd})`;
@@ -217,22 +219,22 @@
                     result.innerHTML = `<span class="status stopped">NOT RUNNING</span>`;
                 }
             } catch (error) {
-                document.getElementById('statusResult').innerHTML = 
+                document.getElementById('statusResult').innerHTML =
                     `<span class="status stopped">ERROR</span> ${error.message}`;
             }
         }
-        
+
         async function getCallsignData() {
             const callsign = document.getElementById('getCallsign').value;
             if (!callsign) {
                 alert('Please enter callsign');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${API_BASE}/api/callsign/${callsign}`);
                 const data = await response.json();
-                
+
                 const result = document.getElementById('getResult');
                 result.textContent = JSON.stringify(data, null, 2);
                 result.style.display = 'block';
@@ -242,7 +244,7 @@
                 result.style.display = 'block';
             }
         }
-        
+
         async function createLog() {
             const logData = {
                 callsign: document.getElementById('createCallsign').value,
@@ -253,20 +255,20 @@
                 name: document.getElementById('createName').value,
                 qth: document.getElementById('createQth').value
             };
-            
+
             if (!logData.callsign) {
                 alert('Please enter callsign');
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${API_BASE}/api/log`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(logData)
                 });
                 const data = await response.json();
-                
+
                 const result = document.getElementById('createResult');
                 result.textContent = JSON.stringify(data, null, 2);
                 result.style.display = 'block';
@@ -276,18 +278,18 @@
                 result.style.display = 'block';
             }
         }
-        
+
         async function clearLog() {
             if (!confirm('本当にクリアしますか?')) {
                 return;
             }
-            
+
             try {
                 const response = await fetch(`${API_BASE}/api/clear`, {
                     method: 'POST'
                 });
                 const data = await response.json();
-                
+
                 const result = document.getElementById('clearResult');
                 result.textContent = JSON.stringify(data, null, 2);
                 result.style.display = 'block';
@@ -297,9 +299,10 @@
                 result.style.display = 'block';
             }
         }
-        
+
         // 起動時にステータスチェック
         window.addEventListener('load', checkStatus);
     </script>
 </body>
+
 </html>

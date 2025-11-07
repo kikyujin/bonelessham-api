@@ -46,8 +46,8 @@
 
 3. **curlで試す**
    ```bash
-   curl http://localhost:86109/api/status
-   curl http://localhost:86109/api/callsign/JA1ABC
+   curl http://localhost:8669/api/status
+   curl http://localhost:8669/api/callsign/JA1ABC
    ```
 
 ---
@@ -120,7 +120,7 @@
   
   [API]
   host = 127.0.0.1
-  port = 86109
+  port = 8669
   
   [AUTOHOTKEY]
   path = C:\Program Files\AutoHotkey\AutoHotkey.exe
