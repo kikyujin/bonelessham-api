@@ -6,9 +6,15 @@ echo ========================================
 echo.
 
 REM HAMLOG確認
-if not exist "C:\HAMLOG\hamlogw.exe" (
-    echo [ERROR] HAMLOG not found at C:\HAMLOG\hamlogw.exe
+REM 環境変数が未設定ならデフォルトパスを設定
+if "%HAMLOG_EXE%"=="" (
+    set "HAMLOG_EXE=C:\HAMLOG\hamlogw.exe"
+)
+
+if not exist "%HAMLOG_EXE%" (
+    echo [ERROR] HAMLOG not found at %HAMLOG_EXE%
     echo Please install HAMLOG from https://hamlog.sakura.ne.jp/
+    echo Or set HAMLOG_EXE environment variable to the correct path
     pause
     exit /b 1
 )
@@ -19,7 +25,7 @@ if "%ERRORLEVEL%"=="0" (
     echo [INFO] HAMLOG is already running
 ) else (
     echo [INFO] Starting HAMLOG...
-    start C:\HAMLOG\hamlogw.exe
+    start "" "%HAMLOG_EXE%"
     timeout /t 2 /nobreak >nul
 )
 
